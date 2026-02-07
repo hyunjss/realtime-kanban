@@ -1,6 +1,17 @@
 import { create } from 'zustand';
 import type { ConnectionStatus } from '@/lib/socket';
 
+const NICKNAME_STORAGE_KEY = 'realtime-kanban:nickname';
+
+function getStoredNickname(): string {
+  try {
+    const v = localStorage.getItem(NICKNAME_STORAGE_KEY);
+    return typeof v === 'string' && v.trim() ? v.trim() : '';
+  } catch {
+    return '';
+  }
+}
+
 export interface PresenceUser {
   userId: string;
   color: string;
@@ -32,6 +43,7 @@ interface SocketState {
   status: ConnectionStatus;
   error: string | null;
   mySocketId: string | null;
+  myNickname: string;
   presence: PresenceUser[];
 }
 
@@ -39,6 +51,7 @@ interface SocketActions {
   setStatus: (status: ConnectionStatus) => void;
   setError: (error: string | null) => void;
   setMySocketId: (id: string | null) => void;
+  setMyNickname: (name: string) => void;
   addPresence: (userId: string) => void;
   removePresence: (userId: string) => void;
   clearPresence: () => void;
@@ -48,6 +61,7 @@ export const socketStore = create<SocketState & SocketActions>((set) => ({
   status: 'idle',
   error: null,
   mySocketId: null,
+  myNickname: getStoredNickname(),
   presence: [],
 
   setStatus(status) {
@@ -60,6 +74,17 @@ export const socketStore = create<SocketState & SocketActions>((set) => ({
 
   setMySocketId(id) {
     set({ mySocketId: id });
+  },
+
+  setMyNickname(name) {
+    const trimmed = typeof name === 'string' ? name.trim() : '';
+    try {
+      if (trimmed) localStorage.setItem(NICKNAME_STORAGE_KEY, trimmed);
+      else localStorage.removeItem(NICKNAME_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    set({ myNickname: trimmed });
   },
 
   addPresence(userId) {

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import styled from '@emotion/styled';
 import type { StyledThemeProps } from '@/theme';
 import { ConnectionStatus } from '@/components/ConnectionStatus';
+import { NicknameEdit } from '@/components/NicknameEdit';
 import { PresenceAvatars } from '@/components/PresenceAvatars';
 
 const Board = lazy(() =>
@@ -79,6 +80,7 @@ function App() {
         <HeaderInner>
           <Title>Realtime Kanban</Title>
           <HeaderActions>
+            <NicknameEdit />
             <ConnectionStatus />
             <PresenceAvatars />
           </HeaderActions>

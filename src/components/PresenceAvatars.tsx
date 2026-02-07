@@ -78,10 +78,20 @@ const UserDot = styled.span`
   flex-shrink: 0;
 `;
 
+function displayName(
+  userId: string,
+  currentUserId: string | null,
+  myNickname: string
+): string {
+  if (userId !== currentUserId) return userId;
+  return myNickname || '나';
+}
+
 export function PresenceAvatars() {
   const [hovered, setHovered] = useState(false);
   const presence = useSocketStore((s) => s.presence);
   const currentUserId = useSocketStore((s) => s.mySocketId);
+  const myNickname = useSocketStore((s) => s.myNickname);
 
   if (presence.length === 0) return null;
 
@@ -92,15 +102,18 @@ export function PresenceAvatars() {
     >
       <Label>접속 중:</Label>
       <Avatars>
-        {presence.map((user) => (
-          <Avatar
-            key={user.userId}
-            style={{ backgroundColor: user.color }}
-            title={user.userId === currentUserId ? '나' : user.userId}
-          >
-            {user.userId === currentUserId ? '나' : user.userId.slice(0, 1)}
-          </Avatar>
-        ))}
+        {presence.map((user) => {
+          const name = displayName(user.userId, currentUserId, myNickname);
+          return (
+            <Avatar
+              key={user.userId}
+              style={{ backgroundColor: user.color }}
+              title={name}
+            >
+              {name.slice(0, 1)}
+            </Avatar>
+          );
+        })}
       </Avatars>
       <Popover
         visible={hovered}
@@ -111,7 +124,7 @@ export function PresenceAvatars() {
         {presence.map((user) => (
           <UserItem key={user.userId}>
             <UserDot style={{ backgroundColor: user.color }} />
-            <span>{user.userId === currentUserId ? '나' : user.userId}</span>
+            <span>{displayName(user.userId, currentUserId, myNickname)}</span>
           </UserItem>
         ))}
       </Popover>
