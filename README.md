@@ -96,6 +96,17 @@ npm run dev
 서버는 기본적으로 `http://localhost:3001`에서 실행되며, API와 Socket.IO를 제공합니다.  
 클라이언트만 실행해도 보드는 동작하지만, 실시간 동기화와 카드 지속화는 서버가 떠 있어야 합니다.
 
+### Vercel 배포 (클라이언트)
+
+1. [Vercel](https://vercel.com)에 로그인 후 **Add New → Project**에서 이 저장소를 import.
+2. **Root Directory**는 프로젝트 루트 그대로, **Build Command** `npm run build`, **Output Directory** `dist` (기본값으로 채워짐).
+3. 서버를 별도로 배포한 경우(예: Railway, Render), Vercel 프로젝트 **Settings → Environment Variables**에 추가:
+   - `VITE_API_URL`: API 서버 URL (예: `https://your-api.railway.app`)
+   - `VITE_SOCKET_URL`: Socket.IO 서버 URL (동일 주소 가능)
+4. **Deploy** 실행.
+
+> 서버(Express + Socket.IO)는 Vercel의 서버리스 환경과 맞지 않아, 실시간 기능이 필요하면 Railway·Render·Fly.io 등에 별도 배포 후 위 환경 변수로 연결하면 됩니다.
+
 ### 테스트
 
 ```bash
