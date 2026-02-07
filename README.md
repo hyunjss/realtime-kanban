@@ -98,14 +98,37 @@ npm run dev
 
 ### Vercel 배포 (클라이언트)
 
-1. [Vercel](https://vercel.com)에 로그인 후 **Add New → Project**에서 이 저장소를 import.
-2. **Root Directory**는 프로젝트 루트 그대로, **Build Command** `npm run build`, **Output Directory** `dist` (기본값으로 채워짐).
-3. 서버를 별도로 배포한 경우(예: Railway, Render), Vercel 프로젝트 **Settings → Environment Variables**에 추가:
-   - `VITE_API_URL`: API 서버 URL (예: `https://your-api.railway.app`)
-   - `VITE_SOCKET_URL`: Socket.IO 서버 URL (동일 주소 가능)
-4. **Deploy** 실행.
+#### 방법 1: Vercel 웹에서 배포 (권장)
 
-> 서버(Express + Socket.IO)는 Vercel의 서버리스 환경과 맞지 않아, 실시간 기능이 필요하면 Railway·Render·Fly.io 등에 별도 배포 후 위 환경 변수로 연결하면 됩니다.
+1. **[vercel.com](https://vercel.com)** 로그인 → **Add New** → **Project**
+2. **Import Git Repository**에서 `hyunjss/realtime-kanban` 선택 (GitHub 연동되어 있어야 함)
+3. 설정 확인 후 **Deploy**:
+   - **Framework Preset**: Vite (자동 감지)
+   - **Root Directory**: `./` (그대로)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install`
+4. 배포 완료 후 생성된 URL(예: `https://realtime-kanban-xxx.vercel.app`)로 접속해 확인.
+
+#### 방법 2: Vercel CLI로 배포
+
+```bash
+npm i -g vercel    # 최초 1회
+cd /Users/ahyun/workspace/realtime-kanban
+vercel             # 로그인 후 배포 (preview)
+vercel --prod      # 프로덕션 도메인에 배포
+```
+
+#### 환경 변수 (서버 연동 시)
+
+서버(API + Socket.IO)를 Railway·Render 등에 따로 배포한 뒤, Vercel 프로젝트 **Settings → Environment Variables**에 추가:
+
+| 이름 | 설명 | 예시 |
+|------|------|------|
+| `VITE_API_URL` | REST API 베이스 URL | `https://your-api.railway.app` |
+| `VITE_SOCKET_URL` | Socket.IO 서버 URL | 위와 동일 가능 |
+
+추가 후 **Redeploy**하면 실시간 동기화가 연결됩니다. (서버 없이 배포해도 프론트만으로 보드는 사용 가능)
 
 ### 테스트
 
