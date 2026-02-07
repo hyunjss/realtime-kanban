@@ -11,6 +11,7 @@ const Board = lazy(() =>
 
 const PageLayout = styled.div`
   min-height: 100vh;
+  min-height: calc(100vh - env(safe-area-inset-bottom));
   background-color: ${(p: StyledThemeProps) => p.theme.colors.slate[50]};
 `;
 
@@ -21,14 +22,15 @@ const Header = styled.header`
   border-bottom: 1px solid ${(p: StyledThemeProps) => p.theme.colors.slate[200]};
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  padding: 1rem 1.5rem;
+  padding: 1rem;
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
   @media (min-width: 640px) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding: 1rem 1.5rem;
   }
   @media (min-width: 1024px) {
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding: 1rem 2rem;
   }
 `;
 
@@ -37,13 +39,17 @@ const HeaderInner = styled.div`
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
+  @media (min-width: 640px) {
+    gap: 1rem;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: ${(p: StyledThemeProps) => p.theme.colors.slate[900]};
+  flex-shrink: 0;
   @media (min-width: 640px) {
     font-size: 1.5rem;
   }
@@ -51,12 +57,20 @@ const Title = styled.h1`
 
 const HeaderActions = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-height: 44px;
+  @media (min-width: 640px) {
+    gap: 1rem;
+  }
 `;
 
 const Main = styled.main`
   padding: 1rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
   @media (min-width: 640px) {
     padding: 1.5rem;
   }

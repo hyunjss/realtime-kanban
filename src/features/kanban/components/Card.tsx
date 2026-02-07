@@ -10,13 +10,17 @@ interface CardProps {
 
 const CardButton = styled.button`
   width: 100%;
-  padding: 1rem;
+  min-height: 44px;
+  padding: 0.875rem 1rem;
   text-align: left;
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.xl};
   border: 1px solid ${(p: StyledThemeProps) => p.theme.colors.slate[200]};
   background-color: ${(p: StyledThemeProps) => p.theme.colors.white};
   box-shadow: ${(p: StyledThemeProps) => p.theme.shadows.sm};
   transition: box-shadow 0.2s;
+  @media (min-width: 640px) {
+    padding: 1rem;
+  }
   &:hover {
     box-shadow: ${(p: StyledThemeProps) => p.theme.shadows.md};
   }

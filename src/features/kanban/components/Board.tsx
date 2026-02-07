@@ -1,4 +1,4 @@
-import { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback, useState } from 'react';
 import styled from '@emotion/styled';
 import {
   DndContext,
@@ -16,23 +16,42 @@ import type { Card, CardStatus, Column as ColumnType } from '@/types/kanban';
 import { COLUMN_IDS, COLUMN_TITLES } from '@/types/kanban';
 import { useKanbanStore } from '@/store/kanbanStore';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import Column from './Column';
 import { CardDragOverlay } from './CardDragOverlay';
 import { getMoveTarget } from '../utils/moveCard';
 
+const MOBILE_BREAKPOINT = 768;
+
 const BoardRegion = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+  @media (min-width: 768px) {
+    gap: 1.5rem;
+  }
 `;
 
-const ColumnsRow = styled.div`
+const ColumnsRow = styled.div<{ isAccordion: boolean }>`
   display: flex;
   gap: 1rem;
-  overflow-x: auto;
   padding-bottom: 1rem;
-  scrollbar-gutter: stable;
+  ${(p: { isAccordion: boolean }) =>
+    p.isAccordion
+      ? `
+    flex-direction: column;
+    overflow: visible;
+  `
+      : `
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
+  `}
   @media (min-width: 768px) {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
     gap: 1.5rem;
   }
 `;
@@ -61,8 +80,15 @@ function Board() {
   const setActiveDragId = useKanbanStore((s) => s.setActiveDragId);
   const getCardById = useKanbanStore((s) => s.getCardById);
 
+  const isAccordionMode = useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+  const [expandedColumnId, setExpandedColumnId] = useState<CardStatus | null>(null);
+
   const { addCardOptimistic, updateCardOptimistic, moveCardOptimistic } =
     useRealtimeSync();
+
+  const handleToggleColumn = useCallback((columnId: CardStatus) => {
+    setExpandedColumnId((prev) => (prev === columnId ? null : columnId));
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, pointerSensorOptions),
@@ -190,7 +216,10 @@ function Board() {
       }}
     >
       <BoardRegion role="region" aria-label="칸반 보드">
-        <ColumnsRow>
+        <ColumnsRow
+          className={isAccordionMode ? undefined : 'board-columns-row'}
+          isAccordion={isAccordionMode}
+        >
           {columns.map((column) => (
             <Column
               key={column.id}
@@ -204,6 +233,9 @@ function Board() {
               onEditSubmit={handleEditSubmit}
               onCancelEdit={handleCancelEdit}
               onDebouncedUpdate={handleDebouncedUpdate}
+              isAccordionMode={isAccordionMode}
+              isExpanded={expandedColumnId === column.id}
+              onToggleColumn={handleToggleColumn}
             />
           ))}
         </ColumnsRow>

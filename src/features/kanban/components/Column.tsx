@@ -34,20 +34,38 @@ interface ColumnProps {
     cardId: string,
     data: { title: string; description: string; status: ColumnType['id'] }
   ) => void;
+  /** 모바일 아코디언: true면 헤더 클릭으로 열기/닫기 */
+  isAccordionMode?: boolean;
+  isExpanded?: boolean;
+  onToggleColumn?: (columnId: ColumnType['id']) => void;
 }
 
-type ColumnSectionProps = StyledThemeProps & { isOver: boolean };
+type ColumnSectionProps = StyledThemeProps & { isOver: boolean; isAccordion?: boolean };
 
-const ColumnSection = styled.section<{ isOver: boolean }>`
+const ColumnSection = styled.section<{ isOver: boolean; isAccordion?: boolean }>`
   display: flex;
   flex-direction: column;
-  min-width: 280px;
+  min-width: 260px;
   max-width: 360px;
   flex-shrink: 0;
   border-radius: ${(p: ColumnSectionProps) => p.theme.radii['2xl']};
   background-color: rgba(241, 245, 249, 0.8);
   padding: 1rem;
   transition: box-shadow 0.2s, outline 0.2s;
+  ${(p: ColumnSectionProps) =>
+    p.isAccordion &&
+    `
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  `}
+  @media (min-width: 640px) {
+    min-width: 280px;
+  }
+  @media (min-width: 768px) {
+    min-width: 280px;
+    max-width: 360px;
+  }
   ${(p: ColumnSectionProps) =>
     p.isOver
       ? `
@@ -58,26 +76,78 @@ const ColumnSection = styled.section<{ isOver: boolean }>`
 `;
 
 const ColumnHeader = styled.h2`
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: ${(p: StyledThemeProps) => p.theme.colors.slate[800]};
+  @media (min-width: 640px) {
+    font-size: 1.125rem;
+  }
+`;
+
+const ColumnHeaderButton = styled.button`
+  width: 100%;
+  margin: 0;
+  margin-bottom: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${(p: StyledThemeProps) => p.theme.colors.slate[800]};
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  min-height: 44px;
+  border-radius: ${(p: StyledThemeProps) => p.theme.radii.lg};
+  transition: background 0.15s;
+  &:hover {
+    background: rgba(226, 232, 240, 0.6);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px ${(p: StyledThemeProps) => p.theme.colors.slate[400]};
+    outline-offset: 2px;
+  }
+  @media (min-width: 640px) {
+    font-size: 1.125rem;
+  }
+`;
+
+const Chevron = styled.span<{ isOpen: boolean }>`
+  display: inline-block;
+  margin-left: auto;
+  transition: transform 0.2s;
+  transform: ${(p: { isOpen: boolean }) => (p.isOpen ? 'rotate(180deg)' : 'rotate(0)')};
+  font-size: 0.875rem;
+  color: ${(p: StyledThemeProps & { isOpen: boolean }) => p.theme.colors.slate[500]};
+`;
+
+const AccordionContentWrap = styled.div`
+  margin-top: 1rem;
 `;
 
 const ColumnBadge = styled.span`
   display: flex;
-  height: 2rem;
-  width: 2rem;
+  height: 1.75rem;
+  min-width: 1.75rem;
   align-items: center;
   justify-content: center;
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.lg};
   background-color: ${(p: StyledThemeProps) => p.theme.colors.slate[700]};
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: white;
+  @media (min-width: 640px) {
+    height: 2rem;
+    min-width: 2rem;
+    font-size: 0.875rem;
+  }
 `;
 
 const AddCardButton = styled.button`
@@ -86,9 +156,10 @@ const AddCardButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px;
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.xl};
   border: 2px dashed ${(p: StyledThemeProps) => p.theme.colors.slate[300]};
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: ${(p: StyledThemeProps) => p.theme.colors.slate[500]};
@@ -117,6 +188,9 @@ function ColumnInner({
   onEditSubmit,
   onCancelEdit,
   onDebouncedUpdate,
+  isAccordionMode = false,
+  isExpanded = false,
+  onToggleColumn,
 }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: getDroppableIdForColumn(column.id),
@@ -129,48 +203,112 @@ function ColumnInner({
     [column.cards, editingCardId]
   );
 
-  return (
-    <ColumnSection ref={setNodeRef} isOver={isOver} style={{ contain: 'layout' }} aria-label={`${column.title} 컬럼, 카드 ${column.cards.length}개`}>
-      <ColumnHeader>
-        <ColumnBadge>{column.cards.length}개</ColumnBadge>
-        {column.title}
-      </ColumnHeader>
+  const showContent = !isAccordionMode || isExpanded;
 
-      <CardList>
-        <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-          {column.cards.map((card) =>
-            card.id === editingCardId && editingCard !== null ? (
+  return (
+    <ColumnSection
+      ref={setNodeRef}
+      isOver={isOver}
+      isAccordion={isAccordionMode}
+      style={{ contain: 'layout' }}
+      aria-label={`${column.title} 컬럼, 카드 ${column.cards.length}개`}
+    >
+      {isAccordionMode ? (
+        <ColumnHeaderButton
+          type="button"
+          onClick={() => onToggleColumn?.(column.id)}
+          aria-expanded={isExpanded}
+          aria-controls={`column-content-${column.id}`}
+          id={`column-header-${column.id}`}
+        >
+          <ColumnBadge>{column.cards.length}개</ColumnBadge>
+          {column.title}
+          <Chevron isOpen={isExpanded} aria-hidden>▼</Chevron>
+        </ColumnHeaderButton>
+      ) : (
+        <ColumnHeader>
+          <ColumnBadge>{column.cards.length}개</ColumnBadge>
+          {column.title}
+        </ColumnHeader>
+      )}
+
+      {showContent &&
+        (isAccordionMode ? (
+          <AccordionContentWrap>
+            <CardList
+              id={`column-content-${column.id}`}
+              aria-labelledby={`column-header-${column.id}`}
+            >
+              <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+                {column.cards.map((card) =>
+                  card.id === editingCardId && editingCard !== null ? (
+                    <CardForm
+                      key={card.id}
+                      initialValues={editingCard}
+                      defaultStatus={column.id}
+                      onSubmit={onEditSubmit}
+                      onCancel={onCancelEdit}
+                      onDebouncedUpdate={onDebouncedUpdate}
+                    />
+                  ) : (
+                    <SortableCard key={card.id} card={card} onEdit={onEditCard} />
+                  )
+                )}
+              </SortableContext>
+              {isAdding ? (
+                <CardForm
+                  defaultStatus={column.id}
+                  onSubmit={onAddCard}
+                  onCancel={onCancelAdd}
+                />
+              ) : (
+                <AddCardButton
+                  type="button"
+                  onClick={() => onStartAdd(column.id)}
+                  aria-label={`${column.title}에 카드 추가`}
+                >
+                  <span aria-hidden>+</span>
+                  카드 추가
+                </AddCardButton>
+              )}
+            </CardList>
+          </AccordionContentWrap>
+        ) : (
+          <CardList>
+            <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+              {column.cards.map((card) =>
+                card.id === editingCardId && editingCard !== null ? (
+                  <CardForm
+                    key={card.id}
+                    initialValues={editingCard}
+                    defaultStatus={column.id}
+                    onSubmit={onEditSubmit}
+                    onCancel={onCancelEdit}
+                    onDebouncedUpdate={onDebouncedUpdate}
+                  />
+                ) : (
+                  <SortableCard key={card.id} card={card} onEdit={onEditCard} />
+                )
+              )}
+            </SortableContext>
+            {isAdding ? (
               <CardForm
-                key={card.id}
-                initialValues={editingCard}
                 defaultStatus={column.id}
-                onSubmit={onEditSubmit}
-                onCancel={onCancelEdit}
-                onDebouncedUpdate={onDebouncedUpdate}
+                onSubmit={onAddCard}
+                onCancel={onCancelAdd}
               />
             ) : (
-              <SortableCard key={card.id} card={card} onEdit={onEditCard} />
-            )
-          )}
-        </SortableContext>
-
-        {isAdding ? (
-          <CardForm
-            defaultStatus={column.id}
-            onSubmit={onAddCard}
-            onCancel={onCancelAdd}
-          />
-        ) : (
-          <AddCardButton
-            type="button"
-            onClick={() => onStartAdd(column.id)}
-            aria-label={`${column.title}에 카드 추가`}
-          >
-            <span aria-hidden>+</span>
-            카드 추가
-          </AddCardButton>
-        )}
-      </CardList>
+              <AddCardButton
+                type="button"
+                onClick={() => onStartAdd(column.id)}
+                aria-label={`${column.title}에 카드 추가`}
+              >
+                <span aria-hidden>+</span>
+                카드 추가
+              </AddCardButton>
+            )}
+          </CardList>
+        ))}
     </ColumnSection>
   );
 }

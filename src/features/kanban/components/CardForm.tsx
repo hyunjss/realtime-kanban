@@ -25,8 +25,11 @@ const Form = styled.form`
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.xl};
   border: 1px solid ${(p: StyledThemeProps) => p.theme.colors.slate[200]};
   background-color: ${(p: StyledThemeProps) => p.theme.colors.white};
-  padding: 1rem;
+  padding: 0.875rem;
   box-shadow: ${(p: StyledThemeProps) => p.theme.shadows.md};
+  @media (min-width: 640px) {
+    padding: 1rem;
+  }
 `;
 
 const Fieldset = styled.div`
@@ -53,10 +56,12 @@ const SrOnly = styled.span`
 
 const inputBase = (p: { theme: import('@/theme').Theme }) => `
   width: 100%;
+  min-height: 44px;
   border-radius: ${p.theme.radii.lg};
   border: 1px solid ${p.theme.colors.slate[300]};
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 0.75rem;
   color: ${p.theme.colors.slate[900]};
+  font-size: 16px;
   &:focus {
     outline: none;
     border-color: ${p.theme.colors.slate[500]};
@@ -73,6 +78,7 @@ const Input = styled.input`
 
 const Textarea = styled.textarea`
   ${(p: StyledThemeProps) => inputBase(p)}
+  min-height: 88px;
   resize: none;
 `;
 
@@ -91,6 +97,7 @@ const SubmitBtn = styled.button`
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.lg};
   background-color: ${(p: StyledThemeProps) => p.theme.colors.slate[800]};
   color: white;
+  min-height: 44px;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -110,6 +117,7 @@ const CancelBtn = styled.button`
   border: 1px solid ${(p: StyledThemeProps) => p.theme.colors.slate[300]};
   background-color: ${(p: StyledThemeProps) => p.theme.colors.white};
   color: ${(p: StyledThemeProps) => p.theme.colors.slate[700]};
+  min-height: 44px;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;

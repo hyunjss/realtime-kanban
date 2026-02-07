@@ -11,6 +11,7 @@ const Wrapper = styled.div`
 `;
 
 const Display = styled.button`
+  min-height: 44px;
   padding: 0.25rem 0.5rem;
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.lg};
   border: 1px solid transparent;
@@ -26,8 +27,9 @@ const Display = styled.button`
 
 const Input = styled.input`
   width: 8rem;
+  min-height: 44px;
   padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+  font-size: 16px;
   border: 1px solid ${(p: StyledThemeProps) => p.theme.colors.slate[300]};
   border-radius: ${(p: StyledThemeProps) => p.theme.radii.lg};
   color: ${(p: StyledThemeProps) => p.theme.colors.slate[800]};
@@ -35,6 +37,9 @@ const Input = styled.input`
   &:focus {
     border-color: ${(p: StyledThemeProps) => p.theme.colors.slate[500]};
     box-shadow: 0 0 0 2px ${(p: StyledThemeProps) => p.theme.colors.slate[200]};
+  }
+  @media (min-width: 640px) {
+    font-size: 0.875rem;
   }
 `;
 
