@@ -72,7 +72,7 @@ export function NicknameEdit() {
           ref={inputRef}
           type="text"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
           onBlur={save}
           onKeyDown={handleKeyDown}
           placeholder="닉네임"
