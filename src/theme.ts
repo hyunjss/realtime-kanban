@@ -1,5 +1,5 @@
 /**
- * 디자인 토큰. Tailwind slate 팔레트 기준으로 동일한 톤 유지.
+ * 디자인 토큰. slate 팔레트 기준.
  */
 export const theme = {
   colors: {

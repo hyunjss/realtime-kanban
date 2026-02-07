@@ -1,7 +1,7 @@
 import { Global, css } from '@emotion/react';
 
 /**
- * 앱 전역 스타일. Tailwind base 대체 (박스 사이징, 기본 리셋).
+ * 앱 전역 스타일.
  */
 export function GlobalStyles() {
   return (

@@ -132,7 +132,7 @@ function ColumnInner({
   return (
     <ColumnSection ref={setNodeRef} isOver={isOver} style={{ contain: 'layout' }} aria-label={`${column.title} 컬럼, 카드 ${column.cards.length}개`}>
       <ColumnHeader>
-        <ColumnBadge>{column.cards.length}</ColumnBadge>
+        <ColumnBadge>{column.cards.length}개</ColumnBadge>
         {column.title}
       </ColumnHeader>
 
